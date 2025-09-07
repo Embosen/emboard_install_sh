@@ -1,0 +1,19 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=AICV实验演示
+Name[zh_CN]=AICV实验演示
+Comment=AICV实验演示
+Comment[zh_CN]=AICV实验演示
+Exec=docker exec -w /home/AICV_base_GUI emboard_aiot /home/AICV_base_GUI/AICV_base_GUI
+Icon=/usr/share/icons/.ico.png
+Terminal=false
+Categories=System;Network;Development;Docker;
+Keywords=AICV;GUI;图形界面;Docker;容器;
+StartupNotify=true
+StartupWMClass=AICV Base GUI System
+GenericName=AICV实验演示
+GenericName[zh_CN]=AICV实验演示
+# 添加更多属性帮助系统识别应用程序
+MimeType=application/x-aicv-gui;
+Actions=New; 

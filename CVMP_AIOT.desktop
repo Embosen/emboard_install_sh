@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=AIOT手势控制
+Comment=CVMP AIOT Application
+docker exec -w /home/CVMP_AIOT emboard_aiot python3 /home/CVMP_AIOT/CVMP_AIOT.py
+Icon=/usr/share/icons/.ico.png
+Terminal=false
+Categories=Development;AI;Machine Learning;
+StartupWMClass=CVMP_AIOT 

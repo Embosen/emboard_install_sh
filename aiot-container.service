@@ -1,0 +1,17 @@
+[Unit]
+Description=AIOT Docker Container Service
+Documentation=https://github.com/Embosen/aiot-system
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=%i
+ExecStart=%i/start_container.sh
+ExecStop=%i/stop_container.sh
+TimeoutStartSec=60
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target 

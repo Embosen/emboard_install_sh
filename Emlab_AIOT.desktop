@@ -1,0 +1,19 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=AIOT控制系统
+Name[zh_CN]=AIOT控制系统
+Comment=云里物联AIOT智能物联网控制系统
+Comment[zh_CN]=云里物联AIOT智能物联网控制系统
+Exec=docker exec emboard_aiot /home/emlab_aiot
+Icon=/usr/share/icons/.ico.png
+Terminal=false
+Categories=System;Network;Development;Docker;
+Keywords=AIOT;IoT;物联网;控制;Modbus;Docker;容器;
+StartupNotify=true
+StartupWMClass=Yunli IoT AIOT Control System
+GenericName=AIOT Control System
+GenericName[zh_CN]=AIOT控制系统
+# 添加更多属性帮助系统识别应用程序
+MimeType=application/x-aiot;
+Actions=New;
