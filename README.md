@@ -25,6 +25,7 @@ emboard_install_sh/
 ├── README.md                           # 项目说明文档
 ├── install_docker_desktop.sh          # Docker桌面图标安装脚本
 ├── install_docker_service.sh          # Docker系统服务安装脚本
+├── install-usb-audio-all.sh           # USB音频设备自动配置脚本
 ├── start_container.sh                 # 容器启动脚本
 ├── stop_container.sh                  # 容器停止脚本
 ├── aiot-container.service             # 系统服务配置文件
@@ -70,6 +71,12 @@ chmod +x install_docker_desktop.sh
 ```bash
 chmod +x install_docker_service.sh
 sudo ./install_docker_service.sh
+```
+
+### 4. 安装USB音频设备配置 (可选)
+```bash
+chmod +x install-usb-audio-all.sh
+sudo ./install-usb-audio-all.sh
 ```
 
 ## 🎯 使用方法
@@ -131,6 +138,33 @@ sudo systemctl stop aiot-container.service
 - **启动器**: `Emlab_AIOT.desktop`
 - **状态图标**: `status_logo_aiot.png`
 
+## 🔊 USB音频设备支持
+
+### 支持的设备类型
+- **GeneralPlus USB Audio Device**: 支持IEC958(光纤)输出 + 多声道输入
+- **2K USB Camera**: 支持多声道输出 + 多声道输入
+
+### 功能特性
+- **自动检测**: 系统启动时自动识别连接的USB音频设备
+- **智能配置**: 根据设备类型自动设置最佳音频配置
+- **系统服务**: 作为systemd服务运行，开机自启动
+- **兼容性**: 支持PulseAudio和PipeWire音频系统
+
+### 使用方法
+```bash
+# 安装USB音频配置服务
+sudo ./install-usb-audio-all.sh
+
+# 查看服务状态
+sudo systemctl status set-usb-audio.service
+
+# 查看服务日志
+sudo journalctl -u set-usb-audio.service -f
+
+# 手动触发音频配置
+sudo systemctl restart set-usb-audio.service
+```
+
 ## 🔍 故障排除
 
 ### 常见问题
@@ -171,6 +205,20 @@ sudo systemctl status aiot-container.service
 sudo journalctl -u aiot-container.service -f
 ```
 
+#### 5. USB音频设备问题
+```bash
+# 检查音频设备
+pactl list short cards
+pactl list short sinks
+pactl list short sources
+
+# 查看USB音频服务状态
+sudo systemctl status set-usb-audio.service
+
+# 手动重新配置音频
+sudo systemctl restart set-usb-audio.service
+```
+
 ## 🛡️ 安全注意事项
 
 - 脚本需要sudo权限来安装系统服务
@@ -207,6 +255,12 @@ sudo journalctl -u aiot-container.service -f
 3. 联系维护者
 
 ## 🔄 更新日志
+
+### v1.1.0 (2024-09-07)
+- 新增USB音频设备自动配置功能
+- 支持GeneralPlus USB Audio Device和2K USB Camera
+- 智能音频设备检测和配置
+- 系统服务自动启动支持
 
 ### v1.0.0 (2024-09-07)
 - 初始版本发布
