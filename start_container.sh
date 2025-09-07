@@ -19,6 +19,25 @@ echo "设置X11权限..."
 export DISPLAY=:0
 xhost +local:docker 2>/dev/null && echo "✅ X11权限设置成功" || echo "❌ 无法设置X11权限，可能影响GUI显示"
 
+# 等待jtop服务启动
+echo "等待jtop服务启动..."
+JTOP_SOCK="/run/jtop.sock"
+MAX_WAIT=60  # 最多等待60秒
+WAIT_COUNT=0
+
+while [ ! -S "$JTOP_SOCK" ] && [ $WAIT_COUNT -lt $MAX_WAIT ]; do
+    echo "等待jtop.sock文件创建... ($WAIT_COUNT/$MAX_WAIT)"
+    sleep 2
+    WAIT_COUNT=$((WAIT_COUNT + 2))
+done
+
+if [ -S "$JTOP_SOCK" ]; then
+    echo "✅ jtop.sock文件已就绪"
+else
+    echo "⚠️ 警告: jtop.sock文件未在${MAX_WAIT}秒内创建，将跳过此挂载"
+    JTOP_SOCK=""
+fi
+
 # 检查容器是否已经存在
 if docker ps -a --format "table {{.Names}}" | grep -q "^$CONTAINER_NAME$"; then
     echo "容器 '$CONTAINER_NAME' 已存在"
@@ -37,8 +56,8 @@ if docker ps -a --format "table {{.Names}}" | grep -q "^$CONTAINER_NAME$"; then
 else
     echo "容器不存在，正在创建并启动..."
     
-    # 使用docker run命令创建并启动容器
-    docker run \
+    # 构建docker run命令
+    DOCKER_CMD="docker run \
         --runtime nvidia \
         -d \
         --name $CONTAINER_NAME \
@@ -52,10 +71,22 @@ else
         -e DISPLAY=:0 \
         -v /tmp/.X11-unix:/tmp/.X11-unix \
         --device /dev/video0 \
-        --device /dev/video1 \
-        -v /run/jtop.sock:/run/jtop.sock \
-        $IMAGE_NAME \
-        sleep infinity
+        --device /dev/video1"
+    
+    # 如果jtop.sock存在，则添加挂载
+    if [ -n "$JTOP_SOCK" ] && [ -S "$JTOP_SOCK" ]; then
+        DOCKER_CMD="$DOCKER_CMD -v $JTOP_SOCK:$JTOP_SOCK"
+        echo "✅ 将挂载jtop.sock: $JTOP_SOCK"
+    else
+        echo "⚠️ 跳过jtop.sock挂载"
+    fi
+    
+    # 添加镜像和命令
+    DOCKER_CMD="$DOCKER_CMD $IMAGE_NAME sleep infinity"
+    
+    # 执行docker run命令
+    echo "执行容器创建命令..."
+    eval $DOCKER_CMD
     
     if [ $? -eq 0 ]; then
         echo "容器创建并启动成功"
