@@ -28,9 +28,25 @@ echo "等待jtop服务启动..."
 JTOP_SOCK="/run/jtop.sock"
 MAX_WAIT=60  # 最多等待60秒
 WAIT_COUNT=0
+JTOP_RESTARTED=false
 
 while [ ! -S "$JTOP_SOCK" ] && [ $WAIT_COUNT -lt $MAX_WAIT ]; do
     echo "等待jtop.sock文件创建... ($WAIT_COUNT/$MAX_WAIT)"
+    
+    # 如果等待超过30秒且还没有重启过jtop服务，则尝试重启
+    if [ $WAIT_COUNT -ge 30 ] && [ "$JTOP_RESTARTED" = false ]; then
+        echo "尝试重启jtop.service..."
+        if sudo systemctl restart jtop.service 2>/dev/null; then
+            echo "✅ jtop.service重启成功"
+            JTOP_RESTARTED=true
+            # 重启后等待更长时间
+            MAX_WAIT=$((MAX_WAIT + 30))
+        else
+            echo "❌ jtop.service重启失败"
+            JTOP_RESTARTED=true
+        fi
+    fi
+    
     sleep 2
     WAIT_COUNT=$((WAIT_COUNT + 2))
 done
@@ -39,6 +55,7 @@ if [ -S "$JTOP_SOCK" ]; then
     echo "✅ jtop.sock文件已就绪"
 else
     echo "⚠️ 警告: jtop.sock文件未在${MAX_WAIT}秒内创建，将跳过此挂载"
+    echo "提示: 可以手动检查jtop服务状态: sudo systemctl status jtop.service"
     JTOP_SOCK=""
 fi
 
