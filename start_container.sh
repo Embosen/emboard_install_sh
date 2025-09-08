@@ -14,10 +14,14 @@ if ! docker info &>/dev/null; then
     exit 1
 fi
 
-# 设置X11权限，允许Docker容器访问显示
+# 设置X11权限，确保容器可以访问显示
 echo "设置X11权限..."
 export DISPLAY=:0
-xhost +local:docker 2>/dev/null && echo "✅ X11权限设置成功" || echo "❌ 无法设置X11权限，可能影响GUI显示"
+if xhost +local:docker && xhost +local:root 2>/dev/null; then
+    echo "✅ X11权限设置成功"
+else
+    echo "⚠️ 警告: 无法设置X11权限，可能影响GUI显示"
+fi
 
 # 等待jtop服务启动
 echo "等待jtop服务启动..."

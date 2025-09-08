@@ -1,17 +1,23 @@
 [Unit]
 Description=AIOT Docker Container Service
 Documentation=https://github.com/Embosen/aiot-system
-After=docker.service
+After=docker.service graphical-session.target
+Wants=docker.service graphical-session.target
 Requires=docker.service
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
 WorkingDirectory=%i
+# 设置X11权限
+ExecStartPre=/bin/bash -c 'export DISPLAY=:0 && xhost +local:docker 2>/dev/null || echo "警告: 无法设置X11权限"'
 ExecStart=%i/start_container.sh
 ExecStop=%i/stop_container.sh
 TimeoutStartSec=60
 TimeoutStopSec=30
+
+# 环境变量
+Environment=DISPLAY=:0
 
 [Install]
 WantedBy=multi-user.target 
